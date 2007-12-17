@@ -21,7 +21,6 @@ Source0: 	%{url}/download/code/v%{version}/%{name}-%{version}.tar.bz2
 Requires(pre):	/usr/sbin/useradd
 Requires: 	dialog
 BuildRequires:	libtool pam-devel ncurses-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Obsoletes: %{name}-doc
 Provides: %{name}-doc
 
