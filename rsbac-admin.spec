@@ -1,7 +1,6 @@
 %define	name	rsbac-admin
 %define	fname	rsbac
 %define	version	1.2.8
-%define	release	%mkrel 1
 %define	url	http://www.rsbac.org
 %define	lib_name_orig lib%{fname}
 %define	lib_major 1
@@ -12,7 +11,7 @@
 
 Name: 		%{name}
 Version:	%{version}
-Release: 	%{release}
+Release: 	%mkrel 2
 Summary: 	A set of RSBAC utilities
 License: 	GPL
 Group: 		System/Configuration/Other
