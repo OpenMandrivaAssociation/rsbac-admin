@@ -3,7 +3,6 @@
 %define	version	1.4.2
 %define release %mkrel 3
 
-%define release %mkrel 2
 %define	lib_name_orig lib%{fname}
 %define	librsbac_major 1
 %define	lib_name %mklibname %{fname} %{librsbac_major}
