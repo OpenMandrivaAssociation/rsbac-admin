@@ -30,6 +30,25 @@ Provides:	%{name}-doc
 RSBAC administration is done via command line tools or dialog menus.
 Please see the online documentation at http://www.rsbac.org/instadm.htm
 
+%package -n	%{fname}
+Summary:	A hardened linux solution
+Group:		System/Configuration/Other
+Requires:	%{name}, %{lib_name}, pam_%{fname}
+Requires:	%{fname}-rklogd, %{libnss_name}, kernel-%{fname}
+
+%description -n	%{fname}
+RSBAC is a flexible, powerful and fast (low overhead) access control framework
+for current Linux kernels: 
+ * Free Open Source (GPL) Linux kernel security solution
+ * Independent of governments and big companies
+ * Several well-known and new security models, like MAC, ACL and RC
+ * Detailed control over individual user and program network accesses
+ * Virtual User Management, in kernel and fully access controlled
+ * On-access virus scanning with the Dazuko interface
+ * Any combination of security models possible
+ * Easily extensible: write your own model for runtime registration
+ * Support for latest kernels and stable for production use
+
 %package -n	%{lib_name}
 Summary:	Main library for %{name}
 Group:		System/Libraries
@@ -64,20 +83,20 @@ This package contains the static library that programmers will need to develop
 applications which will use %{name}.
 
 
-%package -n	pam_rsbac
+%package -n	pam_%{fname}
 Summary:	RSBAC plugins for PAM
 Group:		System/Libraries
 
-%description -n	pam_rsbac
+%description -n	pam_%{fname}
 This package contains plugins that enable using RSBAC for authentication
 through PAM.
 
 
-%package -n	rsbac-rklogd
+%package -n	%{fname}-rklogd
 Summary:	Standalone daemon to log RSBAC messages
 Group:		System/Kernel and hardware
 
-%description -n	rsbac-rklogd
+%description -n	%{fname}-rklogd
 This is a standalone daemon to log RSBAC messages
 to its own facility, by default the file /var/log/rsbac/rsbac.log
 To prevent messages to be logged through syslog too,
@@ -216,7 +235,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_libdir}/%{lib_name_orig}*.a
 
-%files -n pam_rsbac
+%files -n pam_%{fname}
 %defattr(-,root,root)
 /bin/rsbac_login
 /%{_lib}/security/pam_rsbac*.so*
@@ -231,10 +250,12 @@ rm -rf %{buildroot}
 %{_libdir}/libnss_rsbac*.a
 %{_libdir}/libnss_rsbac*.so
 
-%files -n rsbac-rklogd
+%files -n %{fname}-rklogd
 %defattr(-,root,root)
 %_bindir/rklogd-viewer
 %_sbindir/rklogd
 %{_initrddir}/rklogd
 %config(noreplace) %{_sysconfdir}/sysconfig/rklogd
 %{_mandir}/man8/rklogd*
+
+%files -n %{fname}
