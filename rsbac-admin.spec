@@ -1,7 +1,7 @@
 %define	name	rsbac-admin
 %define	fname	rsbac
 %define	version	1.4.2
-%define release %mkrel 3
+%define release %mkrel 4
 
 %define	lib_name_orig lib%{fname}
 %define	librsbac_major 1
@@ -21,6 +21,7 @@ Url:		http://www.rsbac.org
 Source0:	http://download.rsbac.org/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rklogd.init
 Source2:	rklogd.conf
+Source3:	update_urpmi
 Requires:	dialog
 BuildRequires:	libtool pam-devel ncurses-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -111,6 +112,7 @@ mkdir -p %{buildroot}/%{_initrddir}
 install -m 755 %{SOURCE1} %{buildroot}/%{_initrddir}/rklogd
 mkdir -p %{buildroot}/%{_sysconfdir}/sysconfig
 install -m 644 %{SOURCE2} %{buildroot}/%{_sysconfdir}/sysconfig/rklogd
+install -m 755 %{SOURCE3} %{buildroot}/%{_bindir}/update_urpmi
 
 %find_lang %name --all-name
 
@@ -174,6 +176,7 @@ rm -rf %{buildroot}
 %{_bindir}/rklogd-viewer
 %{_bindir}/rs*
 %{_bindir}/switch*
+%{_bindir}/update_urpmi
 %{_bindir}/user_aci.sh
 /%{_lib}/security/pam_rsbac.so
 /%{_lib}/security/pam_rsbac_oldpw.so
