@@ -1,7 +1,7 @@
 %define	name	rsbac-admin
 %define	fname	rsbac
-%define	version	1.4.2
-%define release %mkrel 4
+%define	version	1.4.3
+%define release %mkrel 1
 
 %define	lib_name_orig lib%{fname}
 %define	librsbac_major 1
