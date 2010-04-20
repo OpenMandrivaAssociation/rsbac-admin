@@ -1,7 +1,7 @@
 %define	name	rsbac-admin
 %define	fname	rsbac
 %define	version	1.5.0
-%define release %mkrel 0.0.git.1
+%define release %mkrel 0.0.git.2
 
 %define	lib_name_orig lib%{fname}
 %define	librsbac_major 1
@@ -22,8 +22,6 @@ Source0:	http://download.rsbac.org/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rklogd.init
 Source2:	rklogd.conf
 Source3:	update_urpmi
-#Source4:	http://download.rsbac.org/code/%{version}/admin-changes-%{version}.txt
-#Source5:	http://download.rsbac.org/code/%{version}/changes-%{version}.txt
 Requires:	dialog
 BuildRequires:	libtool pam-devel ncurses-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -68,7 +66,7 @@ for current Linux kernels:
 %package -n	%{fname}-devel
 Summary:	Headers, libraries and includes for developing programs that will use %{name}
 Group:		Development/C
-Requires:	kernel-source
+Requires:	kernel-%{fname}-devel
 Requires:	%{name} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{lib_name}-devel = %{version}-%{release}
@@ -96,7 +94,6 @@ applications which will use RSBAC.
 
 %prep
 %setup -q -n %{name}-%{version}
-#cp %{SOURCE4} .
 
 # lib64 fixes
 find -name "Makefile" | xargs sed -i -e "s|/lib\b|/%{_lib}|g"
@@ -160,7 +157,6 @@ rm -rf %{buildroot}
 %files -f %name.lang
 %defattr(-,root,root,0755)
 %doc README rsbac-tools
-# admin-changes-%{version}.txt changes-%{version}.txt
 %config(noreplace) %{_sysconfdir}/rsbac.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/rklogd
 %{_initrddir}/rklogd
