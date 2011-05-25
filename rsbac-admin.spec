@@ -1,7 +1,7 @@
 %define	name	rsbac-admin
 %define	fname	rsbac
-%define	version	1.5.0
-%define release %mkrel 0.0.git.3
+%define	version	1.4.5
+%define release %mkrel 1
 
 %define	lib_name_orig lib%{fname}
 %define	librsbac_major 1
@@ -14,6 +14,7 @@
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
+Epoch:		2
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
@@ -66,7 +67,7 @@ for current Linux kernels:
 %package -n	%{fname}-devel
 Summary:	Headers, libraries and includes for developing programs that will use %{name}
 Group:		Development/C
-Requires:	kernel-%{fname}-devel
+#Requires:	kernel-%{fname}-devel
 Requires:	%{name} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{lib_name}-devel = %{version}-%{release}
