@@ -8,9 +8,9 @@
 %define	fname	rsbac
 
 Name:		rsbac-admin
-Version:	1.4.5
-Release:	2
 Epoch:		2
+Version:	1.4.5
+Release:	3
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
@@ -24,7 +24,9 @@ BuildRequires:	libtool pam-devel ncurses-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Obsoletes:	%{name}-doc
 Provides:	%{name}-doc
-Provides:	passwd, shadow
+# MD these are competitive virtual provides
+# maybe some other virtual provides should be thought of
+#Provides:	passwd, shadow
 
 %description
 RSBAC administration is done via command line tools or dialog menus.
