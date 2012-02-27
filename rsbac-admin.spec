@@ -9,8 +9,8 @@
 
 Name:		rsbac-admin
 Epoch:		2
-Version:	1.4.5
-Release:	3
+Version:	1.4.6
+Release:	%mkrel 1
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
@@ -42,12 +42,12 @@ Provides:	pam_%{fname} = %{version}-%{release}
 Provides:	%{fname}-rklogd = %{version}-%{release}
 Provides:	%{libnss_name} = %{version}-%{release}
 Provides:	%{libnss_name_orig} = %{version}-%{release}
-Obsoletes:       %{lib_name} = %{version}-%{release}
-Obsoletes:       %{lib_name_orig} = %{version}-%{release}
-Obsoletes:       pam_%{fname} = %{version}-%{release}
-Obsoletes:       %{fname}-rklogd = %{version}-%{release}
-Obsoletes:       %{libnss_name} = %{version}-%{release}
-Obsoletes:       %{libnss_name_orig} = %{version}-%{release}
+Obsoletes:	%{lib_name} = %{version}-%{release}
+Obsoletes:	%{lib_name_orig} = %{version}-%{release}
+Obsoletes:	pam_%{fname} = %{version}-%{release}
+Obsoletes:	%{fname}-rklogd = %{version}-%{release}
+Obsoletes:	%{libnss_name} = %{version}-%{release}
+Obsoletes:	%{libnss_name_orig} = %{version}-%{release}
 
 %description -n	%{fname}
 RSBAC is a flexible, powerful and fast (low overhead) access control framework
@@ -65,8 +65,6 @@ for current Linux kernels:
 %package -n	%{fname}-devel
 Summary:	Headers, libraries and includes for developing programs that will use %{name}
 Group:		Development/C
-#Requires:	kernel-%{fname}-devel
-#Requires:	%{name} = %{version}
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{lib_name}-devel = %{version}-%{release}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
@@ -77,15 +75,15 @@ Provides:	%{libnss_name_orig}-devel = %{version}-%{release}
 %ifarch x86_64
 Provides:	lib64%{fname}-devel = %{version}-%{release}
 Provides:	lib64%{nss_name}-devel = %{version}-%{release}
-Obsoletes:      lib64%{fname}-devel = %{version}-%{release}
-Obsoletes:       lib64%{nss_name}-devel = %{version}-%{release}
+Obsoletes:	lib64%{fname}-devel = %{version}-%{release}
+Obsoletes:	lib64%{nss_name}-devel = %{version}-%{release}
 %endif
-Obsoletes:       %{lib_name}-devel = %{version}-%{release}
-Obsoletes:       %{lib_name_orig}-devel = %{version}-%{release}
-Obsoletes:       %{lib_name}-static-devel = %{version}-%{release}
-Obsoletes:       %{lib_name_orig}-static-devel = %{version}-%{release}
-Obsoletes:       %{libnss_name}-devel = %{version}-%{release}
-Obsoletes:       %{libnss_name_orig}-devel = %{version}-%{release}
+Obsoletes:	%{lib_name}-devel = %{version}-%{release}
+Obsoletes:	%{lib_name_orig}-devel = %{version}-%{release}
+Obsoletes:	%{lib_name}-static-devel = %{version}-%{release}
+Obsoletes:	%{lib_name_orig}-static-devel = %{version}-%{release}
+Obsoletes:	%{libnss_name}-devel = %{version}-%{release}
+Obsoletes:	%{libnss_name_orig}-devel = %{version}-%{release}
 
 %description -n	%{fname}-devel
 This package contains all files that programmers will need to develop
