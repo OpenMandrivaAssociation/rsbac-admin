@@ -1,0 +1,5 @@
+sources:
+  "rklogd.conf:"	e77cf3054c1873b0fcb0bf738b4c7adb6fdb262b
+  "rklogd.init:"	5f7fd3f075df270a7f393ed116c21acaf36307d2
+  "rsbac-admin-1.4.6.tar.bz2:"	7e9738a77068c01975b9dc0dc5b77b23c53c8c2e
+  "update_urpmi:"	12c857fd86c340368611436dcbeb9018dd599976
