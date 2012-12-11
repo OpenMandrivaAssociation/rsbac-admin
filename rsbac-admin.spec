@@ -10,7 +10,7 @@
 Name:		rsbac-admin
 Epoch:		2
 Version:	1.4.6
-Release:	%mkrel 1
+Release:	2
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
@@ -21,7 +21,6 @@ Source2:	rklogd.conf
 Source3:	update_urpmi
 Requires:	dialog
 BuildRequires:	libtool pam-devel ncurses-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Obsoletes:	%{name}-doc
 Provides:	%{name}-doc
 # MD these are competitive virtual provides
@@ -63,7 +62,7 @@ for current Linux kernels:
  * Support for latest kernels and stable for production use
 
 %package -n	%{fname}-devel
-Summary:	Headers, libraries and includes for developing programs that will use %{name}
+Summary:	Headers and libraries for developing programs that will use %{name}
 Group:		Development/C
 Provides:	%{name}-devel = %{version}-%{release}
 Provides:	%{lib_name}-devel = %{version}-%{release}
@@ -100,7 +99,6 @@ find -name "Makefile" | xargs sed -i -e "s|/lib\b|/%{_lib}|g"
 %make PREFIX=%{_prefix} DIR_PAM=/%{_lib}/security
 
 %install
-rm -rf %{buildroot}
 find main/tools/src/scripts -type f | xargs chmod a+x 
 %makeinstall PREFIX=%{_prefix} DESTDIR=%{buildroot} DIR_PAM=/%_lib/security
 mkdir -p %{buildroot}%{_sysconfdir} && cp debian/rsbac.conf %{buildroot}%{_sysconfdir}
@@ -129,9 +127,6 @@ rm -rf rsbac-tools
 mv %{buildroot}/%{_docdir}/rsbac-tools-%{version} rsbac-tools
 find rsbac-tools/examples -type f | xargs chmod a-x
 rm -f rsbac-tools/examples/reg/reg_syscall
-
-%clean
-rm -rf %{buildroot}
 
 %pre
 /usr/sbin/useradd --comment "RSBAC security officer" --home-dir /secoff --create-home --uid 400 --shell /bin/bash secoff
@@ -183,14 +178,141 @@ rm -rf %{buildroot}
 %{_mandir}/man8/rklogd*
 
 %files -n %{fname}-devel
-%defattr(-,root,root)
 %{_libdir}/librsbac.so
-%{_libdir}/librsbac.la
-%{_libdir}/librsbac.a
-%{_libdir}/libnss_rsbac.la
-%{_libdir}/libnss_rsbac.a
 %{_libdir}/libnss_rsbac.so
 %{_includedir}/rsbac
 
 %files -n %{fname}
 
+
+
+%changelog
+* Tue Feb 28 2012 Lonyai Gergely <aleph@mandriva.org> 2:1.4.6-1mdv2012.0
++ Revision: 781171
+- 1.4.6
+
+* Thu Feb 09 2012 Matthew Dawkins <mattydaw@mandriva.org> 2:1.4.5-3
++ Revision: 772231
+- removed competitive provides for both passwd and shadow
+
+* Sun Jun 05 2011 Lonyai Gergely <aleph@mandriva.org> 2:1.4.5-2
++ Revision: 682769
+- Change the devel dependency
+
+* Wed May 25 2011 Lonyai Gergely <aleph@mandriva.org> 2:1.4.5-1
++ Revision: 678976
+- 1.4.5
+
+* Tue Dec 07 2010 Oden Eriksson <oeriksson@mandriva.com> 1.5.0-0.0.git.3mdv2011.0
++ Revision: 614719
+- the mass rebuild of 2010.1 packages
+
+* Tue Apr 20 2010 Lonyai Gergely <aleph@mandriva.org> 1.5.0-0.0.git.2mdv2010.1
++ Revision: 536941
+- change wrong dependency in -devel
+
+* Fri Apr 09 2010 Lonyai Gergely <aleph@mandriva.org> 1.5.0-0.0.git.1mdv2010.1
++ Revision: 533358
+- Update to 1.5.0 git version (2010-04-08)
+- 1.4.3
+
+* Fri Aug 14 2009 Lonyai Gergely <aleph@mandriva.org> 1.4.2-4mdv2010.0
++ Revision: 416334
+- igraltist create a wrapper to Debian. I modify to Mandriva and provide in this package. TODO: recreate a clean urpmi wrapper.
+
+* Fri Aug 07 2009 Lonyai Gergely <aleph@mandriva.org> 1.4.2-3mdv2010.0
++ Revision: 411241
+- fix typo
+- meld the packages
+
+* Fri Aug 07 2009 Lonyai Gergely <aleph@mandriva.org> 1.4.2-2mdv2010.0
++ Revision: 411162
+- release fix
+- add "rsbac" container package
+
+* Wed Aug 05 2009 Lonyai Gergely <aleph@mandriva.org> 1.4.2-1mdv2010.0
++ Revision: 410154
+- Update to 1.4.2
+
+  + Pixel <pixel@mandriva.com>
+    - do not call ldconfig in %%post/%%postun, it is now handled by filetriggers
+
+* Wed Mar 05 2008 Oden Eriksson <oeriksson@mandriva.com> 1.2.8-2mdv2008.1
++ Revision: 179463
+- rebuild
+
+  + Olivier Blin <blino@mandriva.org>
+    - restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Wed Aug 29 2007 Oden Eriksson <oeriksson@mandriva.com> 1.2.8-1mdv2008.0
++ Revision: 73373
+- Import rsbac-admin
+
+
+
+* Wed Aug 30 2006 Arnaud Patard <apatard@mandriva.com> 1.2.8-1mdv2007.0
+- 1.2.8
+- Drop obselete patches
+- Don't build with VERBOSE=1
+- Packaging fixes (e.g. call ldconfig)
+
+* Mon Jul 17 2006 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2.6-7mdv2007.0
+- rebuild
+
+* Mon Jul 17 2006 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2.6-6mdv2007.0
+- rebuild
+
+* Sun Jul 16 2006 Oden Eriksson <oeriksson@mandrakesoft.com> 1.2.6-5mdv2007.0
+- don't build it twice (P1)
+- added lib64 fixes
+- fix docs
+
+* Mon May 29 2006 Thierry Vignaud <tvignaud@mandriva.com> 1.2.6-3mdv2007.0
+- add bug reference
+
+* Mon May 22 2006 Thierry Vignaud <tvignaud@mandriva.com> 1.2.6-3mdk
+- add buildrequires: ncurses-devel
+
+* Mon May 22 2006 Thierry Vignaud <tvignaud@mandriva.com> 1.2.6-2mdk
+- buildrequires: pam-devel
+- obsoletes rsbac-admin-doc (dead subpackge since 1 year) (#19057)
+- don't package X times the not so usefull README
+
+* Fri May 19 2006 Arnaud Patard <apatard@mandriva.com> 1.2.6-1mdk
+- 1.2.6
+
+* Wed May 10 2006 Thierry Vignaud <tvignaud@mandriva.com> 1.2.5-3mdk
+- use %%mkrel
+- compile everything
+- patch 5: fix compiling pam support
+
+* Thu Mar 30 2006 Christiaan Welvaart <cjw@daneel.dyndns.org> 1.2.5-2mdk
+- add BuildRequires: libtool
+
+* Wed Jan 18 2006 Arnaud Patard <apatard@mandriva.com> 1.2.5-1mdk
+- 1.2.5
+
+* Tue Sep 20 2005 Guillaume Rousse <guillomovitch@mandriva.org> 1.2.4-3mdk
+- ship devel man page in devel package in correct place 
+
+* Sat May 21 2005 Oden Eriksson <oeriksson@mandriva.com> 1.2.4-2mdk
+- use the %%configure2_5x macro
+
+* Thu Mar 31 2005 Arnaud Patard <apatard@mandrakesoft.com> 1.2.4-1mdk
+- Update to current stable version (to match kernel version and fix the build)
+
+* Mon Feb 28 2005 Christiaan Welvaart <cjw@daneel.dyndns.org> 1.2.3-4mdk
+- run aclocal before automake
+
+* Sat Dec 25 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.2.3-3mdk
+- bah, fix buildrequires
+
+* Sat Dec 25 2004 Per Øyvind Karlsen <peroyvind@linux-mandrake.com> 1.2.3-2mdk
+- use automake-1.8
+- cosmetics
+
+* Mon Jul 19 2004 Nicolas Planel <nplanel@mandrakesoft.com> 1.2.3-1mdk
+- Inital release for Mandrakelinux distribution.

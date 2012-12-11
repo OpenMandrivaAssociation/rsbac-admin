@@ -1,0 +1,288 @@
+#!/bin/bash
+# lizenz: GPL 2 || GPL >2
+# author igraltist@popelschnipser.de
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
+# achtung kann unter bestimmten umstaenden beim abbruch einer action das file mit falschen, dh 
+# alten werten eingelesen werden  in arbeit ...
+set -h +x #-o
+
+keep_it=yes  # if no it delete the tmp dir
+# Fenstergröße H(öhe) * B(reite)
+H=20
+B=80
+
+# Verzeichnis, wo die zu einem Paket gehoerenden Dateien etc. gespeichert werden
+tmp_pakete=$(pwd)/tmp_pakete
+TMPFILE=/tmp/dialog.$$
+TMPFILE_inst_Pakete=/tmp/dialog_inst_pakete.$$
+TMPFILE_anz_Pakete=/tmp/dialog_anz_pakete.$$
+TMPFILE_suche_Pakete=/tmp/dialog_suche_pakete.$$
+TMPFILE_get_Pakete=/tmp/dialog_get_pakete.$$
+
+clean_tmp(){
+	rm -f $TMPFILE $TMPFILE_inst_Pakete $TMPFILE_anz_Pakete $TMPFILE_suche_Pakete $TMPFILE_get_Pakete
+	echo "removing "
+	echo -e " ${TMPFILE}\n ${TMPFILE_inst_Pakete}\n ${TMPFILE_anz_Pakete}\n ${TMPFILE_suche_Pakete}\n ${TMPFILE_get_Pakete}"
+}
+
+trap clean_tmp 0 1 2 5 15 
+
+software_test(){
+	help=$(dialog --version | cut -d: -f2 | cut -d- -f1 | cut -d. -f1 )
+
+	if [ "$help" -lt 1 ];then
+		echo "Version ist kleiner 1.xx"
+		exit 1
+	fi
+	
+	which && { echo Paket which ist nicht installiert. Abbruch; exit 0; }	
+
+	pakete=("awk" "cut" "rpm" "grep" "sed" "wc")
+
+	for i in ${pakete[*]}; do
+		which $i 1> /dev/null || { echo Paket \"$i\" ist nicht installiert. Abbruch; exit 0; }
+	done	
+}	
+
+software_test
+
+# bereite die Datei für dialog vor
+dpkg_installed(){
+	rpm -qa --queryformat="%{NAME}\n%{VERSION}\noff\n"
+}
+
+dpkg_installed  > $TMPFILE_inst_Pakete
+
+
+anz_pakete(){
+	if [ -f $TMPFILE_suche_Pakete ]; then
+		cat $TMPFILE_suche_Pakete | wc -l 
+	fi
+}
+	
+
+#############################################################################################################
+
+start_menu(){
+	dialog --radiolist "Wählen Sie eine der folgenden Optionen." $H $B 10 \
+		0 "Auswahl durch Paketnameneingabe"  off \
+		1 "Auswahl aus der Paketliste" off \
+		2 "Ein Update + Ugrade durchführen" off \
+		3 "Ein Update + Dist-Upgrade durchführen!" off \
+		4 "Ein Paket installieren" off \
+		2> $TMPFILE || { clean_tmp; clear; exit 0; }
+
+	auswahl=$(cat $TMPFILE)
+
+	case $auswahl in
+		0) menu_manuell;;
+		1) menu_liste;;
+		2) menu_update;;
+		3) menu_dist_update;;
+		4) menu_install;;
+	esac
+
+}
+
+menu_manuell(){
+	dialog --title "Ihre Paketauswahl" --inputbox "Paketname" $H $B 2> $TMPFILE || start_menu
+
+	manuell=$(cat $TMPFILE)
+
+	if [ "${#manuell}" -gt 0 ]; then
+		rpm -qa --queryformat="%{NAME}\n%{VERSION}\noff\n" > $TMPFILE_get_Pakete
+	
+		laenge_name=$(cat $TMPFILE_get_Pakete)
+	
+		if [ "${#laenge_name}" -eq  0 ]; then
+			dialog --msgbox "Paket $manuell konnte nicht gefunden werden." $H $B
+			menu_manuell
+		else
+			dialog --checklist "Suchbegriff: $manuell" $H $B 10 \
+				`cat $TMPFILE_get_Pakete` \
+			2> $TMPFILE_suche_Pakete  || start_menu
+			
+			do_find_all_files  && do_apt_reinstall && do_restore_backup_fd
+		
+		fi
+
+	else
+		dialog  --msgbox "Keinen Paketnamen eingegeben" $H $B && menu_manuell
+	fi
+}
+
+menu_liste(){
+	dialog --backtitle "Packetauswahl" --checklist "Wählen Sie, mit der Leertaste aktiveren Sie\
+	das gewünschte Paket." $H $B 12 \
+		`cat $TMPFILE_inst_Pakete | sed 's/\"//g' ` \
+		2> $TMPFILE_suche_Pakete || start_menu
+
+
+	dialog --yesno "Wollen Sie diese Pakete nochmal installieren und somit eventuell eine neuere \
+		Version zu erhalten?\n \
+		`cat $TMPFILE_suche_Pakete`" $H $B || start_menu
+	
+	 do_find_all_files  && do_apt_reinstall && do_restore_backup_fd
+
+}
+
+menu_update(){
+	dialog --infobox "Es wird gerade die Paketliste gelesen. Ein Moment ...." $H $B
+	su root -c "urpmi --test --auto --auto-update" | grep  "Inst" > $TMPFILE  
+
+	urpmq --auto-select > $TMPFILE_suche_Pakete || start_menu
+
+	if [ `anz_pakete` -eq 0 ];then	
+		dialog --msgbox "Momentan steht kein Paket zum upgrade bereit." $H $B 
+		urpmi --auto --auto-update	
+	else
+		
+dialog --msgbox "Diese Pakete werden upgegradet, mit \"OK\" zur Bestättigung.
+Anzahl: `anz_pakete`
+`cat $TMPFILE_suche_Pakete`" $H $B && menu_upgrade	
+
+	fi
+}
+
+menu_upgrade(){
+	dialog --yesno "Ein upgrade durchführen? Dieses kann eine Weile dauern." $H $B || start_menu
+
+	do_find_all_files  && su root -c "urpmi --auto --auto-update" && do_restore_backup_fd	
+
+}
+
+menu_dist_update(){
+        dialog --infobox "Es wird gerade die Paketliste gelesen. Ein Moment ...." $H $B
+        su root -c "urpmi --test --auto --auto-update" | grep  "Inst" > $TMPFILE
+
+        urpmq --auto-select > $TMPFILE_suche_Pakete || start_menu
+
+        if [ `anz_pakete` -eq 0 ];then
+                dialog --msgbox "Momentan steht kein Paket zum upgrade bereit." $H $B
+                urpmi --auto --auto-update
+        else
+
+dialog --msgbox "Diese Pakete werden upgegradet, mit \"OK\" zur Bestättigung.
+Anzahl: `anz_pakete`
+`cat $TMPFILE_suche_Pakete`" $H $B && menu_dist_upgrade
+
+        fi
+}
+
+menu_dist_upgrade(){
+	dialog --yesno "Ein upgrade durchführen? Dieses kann eine Weile dauern." $H $B || start_menu
+
+        do_find_all_files  && su root -c "urpmi --auto --auto-update" && do_restore_backup_fd
+}
+
+menu_install(){
+        dialog --title "Geben Sie den Paketname ein" --inputbox "Paketname" $H $B 2> $TMPFILE || start_menu
+
+        if [ -s $TMPFILE ]; then
+		# ein bisschne naja
+		urpmq -a `cat $TMPFILE` -S | sed -e 's/(.*$//g' | awk '{print $1"\n"$3"_"$4"_"$5"_"$6"_"$7"_"$8"_"$9"\noff"}' > \
+				$TMPFILE_inst_Pakete
+	
+ 		dialog --backtitle "Packetauswahl" --checklist "Diese Pakete wurden für Ihr Suchbegriff gefunden.
+		Mit der Leertasten aktivieren Sie das Paket, mehrfach Auswahl ist möglich." $H $B 12 \
+		               `cat $TMPFILE_inst_Pakete | sed 's/\"//g' ` \
+                		2> $TMPFILE_suche_Pakete || start_menu
+
+		if [ -s $TMPFILE_suche_Pakete ]; then
+			do_apt_install && do_set_new_policy
+		else
+			dialog --msgbox "Kein Paket ausgewählt" $H $B && menu_install
+		fi
+
+		
+	else
+		dialog  --msgbox "Keinen Paketnamen eingegeben" $H $B && menu_install
+        fi
+
+}
+
+##############################################################################################
+do_set_new_policy(){
+	progs_name=$(cat $TMPFILE_suche_Pakete | sed 's/\"//g')
+
+	for i in ${progs_name[*]}; do
+		echo kein policy da fuer $i
+	done
+}
+
+do_apt_install(){
+	progs_name=$(cat $TMPFILE_suche_Pakete | sed 's/\"//g')
+
+        for i in ${progs_name[*]}; do
+              su root -c "urpmi --auto --auto-select ${i}"
+        done
+
+}
+
+do_apt_reinstall(){
+	progs_name=$(cat $TMPFILE_suche_Pakete | sed 's/\"//g')
+	
+	for i in ${progs_name[*]}; do
+		su root -c "urpmi --auto --auto-select --replacefiles ${i}"
+	done
+}
+
+do_find_all_files(){
+	programme=$(cat $TMPFILE_suche_Pakete | sed 's/\"//g')
+	
+	if [ ! -d tmp_pakete ]; then
+		if [ -w "$(pwd)" ]; then 
+			mkdir $tmp_pakete
+		else
+			echo "Verzeichnis $(pwd) ist nicht beschreibbar. Abbruch"
+			exit 0
+		fi
+	else
+		if [ ${keep_it} = "no" ];then
+			rm -rf $tmp_pakete/*
+		fi
+	fi
+
+	for i in ${programme[*]}; do			
+		if [ ! -d "${tmp_pakete}/${i}" ];then
+		    mkdir $tmp_pakete/$i && dpkg -L $i | sed -e 1d &> $tmp_pakete/$i/dir_file && do_backup_fd
+		else
+		    urpmq -l $i | sed -e 1d &> $tmp_pakete/$i/dir_file && do_backup_fd
+		fi
+	done		
+
+}
+
+do_restore_backup_fd(){
+	programme=$(ls -1 $tmp_pakete)
+
+	echo "setze Attribute"
+		
+	for i in ${programme[*]}; do
+		sh $tmp_pakete/$i/attr_fd
+	done
+}
+
+do_backup_fd(){
+	suche=$(cat $tmp_pakete/$i/dir_file)
+	# clean old entries
+	echo -n > $tmp_pakete/$i/attr_fd 
+	for dir_file in ${suche[*]}; do
+		attr_back_fd $dir_file 2>/dev/null 1>> $tmp_pakete/$i/attr_fd 
+		auth_back_cap $dir_file 2>/dev/null 1>>$tmp_pakete/$i/attr_fd
+		mac_back_trusted $dir_file 2>/dev/null 1>>$tmp_pakete/$i/attr_fd
+	done; 
+
+}
+
+
+####################################################################################################
+
+start_menu
+
+# /tmp Verzeichnis säubern
+#clean_tmp
+
+exit 0
+
