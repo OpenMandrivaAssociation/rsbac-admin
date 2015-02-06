@@ -10,7 +10,7 @@
 Name:		rsbac-admin
 Epoch:		2
 Version:	1.4.6
-Release:	2
+Release:	3
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
