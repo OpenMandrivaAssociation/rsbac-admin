@@ -14,7 +14,7 @@ Release:	3
 Summary:	A set of RSBAC utilities
 License:	GPL
 Group:		System/Configuration/Other
-Url:		http://www.rsbac.org
+Url:		https://www.rsbac.org
 Source0:	http://download.rsbac.org/code/%{version}/%{name}-%{version}.tar.bz2
 Source1:	rklogd.init
 Source2:	rklogd.conf
